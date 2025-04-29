@@ -4,11 +4,9 @@ on:
   push:
     tags:
       - 'v*'
-
 env:
-  IMAGE_NAME: my-app
+  IMAGE_NAME: niirvana23/my-app
   REGISTRY: docker.io
-
 jobs:
   test-build:
     runs-on: ubuntu-latest
