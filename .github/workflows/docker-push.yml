@@ -35,19 +35,13 @@ jobs:
       with:
         username: ${{ secrets.DOCKERHUB_USERNAME }}
         password: ${{ secrets.DOCKERHUB_TOKEN }}
-
     - name: Extract tag version
       id: extract_tag
       run: echo "TAG=${GITHUB_REF#refs/tags/}" >> $GITHUB_ENV
-
-    - name: Build and push Docker image
+    - name: Build and push
       uses: docker/build-push-action@v5
       with:
-        push: ${{ github.event_name == 'push' }}
-        tags: |
-          ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:latest
-          ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ github.sha }}
-        provenance: false
-        cache-from: type=gha
-        cache-to: type=gha,mode=max
-
+        context: .
+        file: ./Dockerfile
+        push: true
+        tags: ${{ secrets.DOCKERHUB_USERNAME }}/my-next-app:latest
