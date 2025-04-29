@@ -1,0 +1,45 @@
+name: CI
+
+on:
+  push:
+    tags:
+      - 'v*'
+env:
+  REGISTRY: ghcr.io
+  IMAGE_NAME: ${{ github.repository }}
+
+
+jobs:
+  test-build:
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v4
+
+    - uses: actions/setup-node@v4
+      with:
+        node-version: 20
+        cache: 'npm'
+
+    - run: npm ci
+    - run: npm run lint && npm run typecheck
+
+
+    - name: Log in to Docker Hub
+      uses: docker/login-action@v3
+      with:
+       username: ${{ secrets.DOCKERHUB_USERNAME }}
+       password: ${{ secrets.DOCKERHUB_TOKEN }}
+    - name: Extract tag version
+      id: extract_tag
+      run: echo "TAG=${GITHUB_REF#refs/tags/}" >> $GITHUB_ENV
+    - name: Build & push Docker image
+      uses: docker/build-push-action@v5
+      with:
+        push: ${{ github.event_name == 'push' }}
+        tags: |
+          ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:latest
+          ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ github.sha }}
+        provenance: false
+        cache-from: type=gha
+        cache-to: type=gha,mode=max
