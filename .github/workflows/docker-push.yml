@@ -5,9 +5,8 @@ on:
     tags:
       - 'v*'
 env:
-  REGISTRY: ghcr.io
-  IMAGE_NAME: ${{ github.repository }}
-
+  IMAGE_NAME: my-app
+  REGISTRY: docker.io
 
 jobs:
   test-build:
